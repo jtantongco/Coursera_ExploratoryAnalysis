@@ -1,0 +1,14 @@
+Exploratory Data Analysis Principles - Analytic Graphics
+
+1. Show Comparisons - Establish a baseline
+2. Show causality/mechanism/explanation/systematic structure - explain with something! 
+3. Show multivariate data - more than 2 variables and need to escape "flatland"
+4. Integration of evidence
+	do not let tools drive the analysis
+5. Describe and document evidence with appropriate labels, scales, and sources
+6. Content is king
+	if you don't have a worthwhile message, all the analysis in the world won't help
+
+Simpson's paradox - 
+The pattern when data is combined is different than when the smaller group data trends
+
