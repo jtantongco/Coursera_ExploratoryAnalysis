@@ -1,0 +1,177 @@
+MAACS code
+
+str(maacs) #not publically available
+
+---
+
+Histogram:
+Take the logarithm of each value of the eno column 
+eno -> exahled nitric oxide - nasal inflammation var
+qplot(log(eno),    data	=	maacs)	
+
+---
+
+color code out by sensivity to allergen (mopos)
+qplot(log(eno),    data	=	maacs,	fill	=	mopos)	
+
+---
+
+Density smooth to get smooth function of data
+qplot(log(eno),    data	=	maacs,	geom	=	"density")	
+
+Since we see two peaks, try to seperate out on another variable to account
+qplot(log(eno),    data	=	maacs,	geom	=	"density",	color	=	mopos)
+
+---
+
+Scatterplot
+try to relate log(pm25) and log(eno)
+qplot(log(pm25),    log(eno),	data	=	maacs)	
+
+change the shape of a data point based on the mopos variable
+qplot(log(pm25),    log(eno),	data	=	maacs,	shape	=	mopos)
+
+since the points are dense, hard to distinguish on shape so how about color?
+change the color of a data point based on the mopos variable
+qplot(log(pm25),    log(eno),	data	=	maacs,	color	=	mopos)
+
+----
+
+#seprate color on mopos
+#add smooth lines to see the data
+#note this will put two smooth lines on the graph
+qplot(log(pm25),    log(eno),	data	=	maacs,	color	=	mopos,	geom	=	c("point",	"smooth"),	method	=	"lm")
+
+#how about two plots where data is broken down on mopos
+#use the facets as before (1 row and mopos breakdown columns)
+#each plot will have its own geom smooth line
+qplot(log(pm25),    log(eno),	data	=	maacs,	geom	=	c("point",	"smooth"),	method	=	"lm",	facets	=	.	~	mopos)	
+
+
+---- lecture part 3
+# 2 plots separating on bmicat
+# log pm25 vs nocturnal symptoms
+# 2 line fits
+qplot(log(pm25), NocturnalSympt, data = maacs, facets = . ~ bmicat, geom = 
+c("point", "smooth"), method = "lm”)
+
+
+---- Manual build up
+# Layer 1
+
+# view data
+head(maacs)
+# set the aesthetics [x and y axis]
+g <- ggplot(maacs, aes(logpm25, NocturnalSympt))
+# shows detail of ggplot object
+summary(g)
+
+#calling print(g) will cause an error - no plot exists yet
+g <- ggplot(maacs, aes(logpm25, NocturnalSympt))
+print(g)
+# will produce - Error: No layers in plot
+# empty plot with known axises
+
+# explicit save and print
+p <- g + geom_point()
+print(p)
+
+# implied print of plot
+# add points given the axises and dataset
+g + geom_point()
+
+#add a best fit line (may not be linear)
+g + geom_point() + geom_smooth()
+
+#add a linear best fit line
+g + geom_point() + geom_smooth(method = "lm")
+
+#as above but add:
+# breaking up plots on bmicat variable [facets]
+# facet argument are bound in the same as the other facet call (rows ~ cols)
+# does order of addition make a difference?
+# factors are applied automatically -> make sure data is properly "ggplot2 friendly"
+g + geom_point() + facet_grid(. ~ bmicat) + geom_smooth(method = "lm")
+
+
+#annotation fcns
+
+#Labels:	
+xlab(),	ylab(),	labs(),	gg:tle()
+
+#Global plot details:
+theme(legend.posi:on	=	"none")	
+#Standard themes:
+theme_gray()
+theme_bw()
+
+#Changing points:
+# make all points steel blue + other settings
+g + geom_point(color = "steelblue”, size = 4, alpha = 1/2)
+
+# have points color coded by bmicat variable + other settings
+#note constants as aesthetics options and dynmaic aesthetic settings
+g + geom_point(aes(color = bmicat), size = 4, alpha = 1/2)
+
+#labels
+# added multiple lable data
+# note the markup on the x label 
+# ie [2.5] is subscript, etc.
+g + geom_point(aes(color = bmicat)) + labs(title = "MAACS Cohort") + labs(x = expression("log " 
+* PM[2.5]), y = "Nocturnal Symptoms")
+
+# custominzing the best fit line
+# gets rid of the confidence interval and makes the line be made of solid squares
+g + geom_point(aes(color = bmicat), size = 2, alpha = 1/2) + geom_smooth(size = 4, linetype = 3, method = "lm", se = FALSE)
+
+
+#changing the theme and font
+ g + geom_point(aes(color = bmicat)) + theme_bw(base_family = "Times”)
+
+# Does changing the y axis limits fix the problem:
+# sort of - will subset the data at the point that has the outlier
+# no line goes up to the outlier so hard to know that it is even there
+ g + geom_line() + ylim(-3, 3)
+
+# This fixes the problem, not sure semantically why...
+ g + geom_line() + coord_cartesian(ylim = c(-3, 3))
+
+
+ # What about values with continuous values [not discrete]
+ # if you fix value of the variable per plot, could be infinite # of plots
+ # fix the value interval per plot!
+
+# use the cut() fcn
+
+## Calculate the deciles of the data
+# calculate the 11 boundary values (since specifying the intervals)
+# 11 boundary values since 10 distinct regions
+# note from vide changing the length from 11 to 4 will change to tertiles
+# tertiles -> 3 regions [4 boundary values]
+# note: each decile will have ~ 10% pop., and each tertile will have ~1/3 pop.
+cutpoints <- quantile(maacs$logno2_new, seq(0, 1, length = 11), na.rm = TRUE)
+
+#### note when plotting tertiles -> will actually generate 4 columns if you split on the tertile
+# since the null/missing data is a value for the data
+
+## Cut the data at the deciles and create a new factor variable
+# mathematical function that will create the expressions for the value intervals
+maacs$no2dec <- cut(maacs$logno2_new, cutpoints)
+
+## See the levels of the newly created factor variable
+levels(maacs$no2dec)
+ [1] "(0.378,0.969]" "(0.969,1.1]" "(1.1,1.17]" "(1.17,1.26]" 
+ [5] "(1.26,1.32]" "(1.32,1.38]" "(1.38,1.44]" "(1.44,1.54]" 
+ [9] "(1.54,1.69]" "(1.69,2.55]" 
+
+
+ ## Setup ggplot with data frame
+g <- ggplot(maacs, aes(logpm25, NocturnalSympt))
+## Add layers
+g + geom_point(alpha = 1/3) 
+ + facet_wrap(bmicat ~ no2dec, nrow = 2, ncol = 4) 
+ + geom_smooth(method="lm", se=FALSE, col="steelblue") 
+ + theme_bw(base_family = "Avenir", base_size = 10) 
+ + labs(x = expression("log " * PM[2.5]) 
+ + labs(y = "Nocturnal Symptoms”) 
+ + labs(title = "MAACS Cohort”)
