@@ -44,7 +44,7 @@ plot(x=date.time,
      y=as.numeric(as.character(powerTable$Global_reactive_power)),
      type="l",
      xlab = "datetime",
-     ylab = "Global_reactive_power",
+     ylab = "Global_reactive_power"
      )
 
 
