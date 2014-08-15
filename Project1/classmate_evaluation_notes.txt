@@ -1,0 +1,6 @@
+Good example of verbose code structuring for this project
+
+https://github.com/ppaier/ExData_Plotting1
+
+Strucutred usage of with
+https://github.com/MikeMacLeodDotNet/ExData_Plotting1
